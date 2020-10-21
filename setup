@@ -1,0 +1,30 @@
+export DEBIAN_FRONTEND=noninteractive && \
+    apt-get update && apt-get install -y libreadline-dev libboost-dev build-essential libgmp-dev pkg-config libseccomp-dev software-properties-common subversion libmpfr-dev libmpc-dev flex zlib1g-dev git libedit-dev ncurses-dev cmake bison libcap-dev python wget locales-all dnsutils unzip
+
+#COPY llvm-no-temp-files.patch /geordi/src/
+#COPY install-clang /geordi/src/
+#RUN /geordi/src/install-clang
+
+#COPY install-klee /geordi/src/
+#RUN /geordi/src/install-klee
+
+apt-get install -y haskell-platform
+
+cp -rv install-gcc-trunk /geordi/src/
+/geordi/src/install-gcc-trunk
+
+mkdir -p ~/.cabal/bin # working around a cabal bug
+# RUN cabal update && cabal --ghc-option="-optl-no-pie" install --global --reorder-goals --allow-newer=process bytestring text deepseq mtl syb utf8-string network network-bsd containers readline parsec Diff regex-compat base-unicode-symbols setops streams semigroups regex-posix template-haskell transformers pointed distributive comonad contravariant profunctors semigroupoids irc setlocale HTTP Cabal
+# (We could rely on the list in geordi.cabal, but having these here shortens the development cycle when I'm testing changes in geordi.)
+
+cp -rv src /geordi/src
+cabal --ghc-option="-optl-no-pie" install --global /geordi/src --prefix=/usr
+
+compile-config /geordi/
+cd /geordi/run
+
+/usr/bin/geordi-local
+
+cp -rv prelude /geordi/src/prelude
+cp -rv prep-image /geordi/src/
+/geordi/src/prep-image

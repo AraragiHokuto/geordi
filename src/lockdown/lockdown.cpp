@@ -113,6 +113,10 @@ int main(int const argc, char * const * const argv)
 
 		if (argc < 2) e("params: program args");
 
+		// workaround before we fully integrate to illumos
+		execv(argv[1], argv + 1);
+		e("execv");
+
 		if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) != 0) e("prctl");
 
 		scmp_filter_ctx const ctx = seccomp_init(SCMP_ACT_TRAP);
